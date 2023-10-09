@@ -17,8 +17,6 @@ initialize_python_project() {
 
     # Initialize a new poetry project
     poetry init --no-interaction
-
-    # Install common packages
     poetry add pytest pre-commit
 
     # Copy configuration files from ~/scripts/initpy directory to the new project directory
@@ -26,6 +24,20 @@ initialize_python_project() {
     cp ~/scripts/initpy/setup.cfg .
     cp ~/scripts/initpy/.pre-commit-config.yaml .
     cp -r ~/scripts/initpy/tests .
+
+    # ask whether to include .github/workflows
+    read -p ">>> Do you want to copy the github/workflows directory to your project? [Y/n]: " copy_choice
+    copy_choice=${copy_choice:-y}
+    if [[ "$copy_choice" =~ ^([yY][eE][sS]|[yY]|"")$ ]]; then
+        mkdir -p ./.github/workflows
+        cp -r ~/scripts/initpy/github/* ./.github/workflows
+        echo "github/workflows directory has been copied to your project."
+    elif [[ "$copy_choice" =~ ^([nN][oO]|[nN])$ ]]; then
+        echo "github/workflows directory was not copied to your project."
+    else
+        echo "Invalid option. github/workflows directory was not copied to your project."
+    fi
+
 
     while true; do
         echo "Select the type of project (1: FastAPI, 2: Scraper, 3: Quit):"
@@ -72,7 +84,7 @@ initialize_python_project() {
                 break
                 ;;
             3)
-                exit  # Exit when '3' is entered
+                exit
                 ;;
             *)
                 echo "Invalid option $project_type. Please select 1, 2, or 3."
